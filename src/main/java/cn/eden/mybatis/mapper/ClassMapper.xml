@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.eden.mybatis.mapper.ClassMapper">
+	<!-- 
+        根据班级id查询班级信息(带老师的信息)
+        ##1. 联表查询
+        SELECT * FROM classes c,teachers t WHERE c.tid=t.tid AND c.cid=1;
+        
+        ##2. 执行两次查询
+        SELECT * FROM classes WHERE cid=1;  //tid=1
+        SELECT * FROM teachers WHERE tid=1;//使用上面得到的tid
+    -->
+     <!-- 
+   		 方式一：嵌套结果：使用嵌套结果映射来处理重复的联合结果的子集
+          	     封装联表查询的数据(去除重复的数据)
+    -->
+    <select id="SelectClassById" parameterType="int" resultMap="ClassResultMap">
+    	SELECT * FROM classes c,teachers t WHERE c.tid=t.tid AND c.cid=#{id}
+    </select>
+	<!-- 使用resultMap映射实体类和字段之间的一一对应关系 -->
+    <resultMap type="cn.eden.mybatis.pojo.Classes" id="ClassResultMap">
+    	<id property="id" column="cid"/>
+    	<result property="name" column="cname"/>
+    	<association property="teacher" javaType="cn.eden.mybatis.pojo.Teacher">
+    		<id property="id" column="tid"/>
+    		<result property="name" column="tname"/>
+    	</association>
+    </resultMap>
+   
+    <!-- 
+    	方式二：嵌套查询：通过执行另外一个SQL映射语句来返回预期的复杂类型
+        SELECT * FROM classes WHERE cid=1001;
+        SELECT * FROM teachers WHERE tid=1   //1 是上一个查询得到的id的值
+    -->
+     <select id="SelectClassById2" parameterType="int" resultMap="ClassResultMap2">
+        select * from classes where cid=#{id}
+     </select>
+     <!-- 使用resultMap映射实体类和字段之间的一一对应关系 -->
+     <resultMap type="cn.eden.mybatis.pojo.Classes" id="ClassResultMap2">
+        <id property="id" column="cid"/>
+        <result property="name" column="cname"/>
+        <association property="teacher" column="tid" select="SelectTeacherById"/>
+     </resultMap>
+     
+     <select id="SelectTeacherById" parameterType="int" resultType="cn.eden.mybatis.pojo.Teacher">
+        SELECT tid id, tname name FROM teachers WHERE tid=#{id}
+     </select>
+</mapper>
