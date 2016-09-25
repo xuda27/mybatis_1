@@ -18,10 +18,10 @@
     	SELECT * FROM classes c,teachers t WHERE c.tid=t.tid AND c.cid=#{id}
     </select>
 	<!-- 使用resultMap映射实体类和字段之间的一一对应关系 -->
-    <resultMap type="cn.eden.mybatis.pojo.Classes" id="ClassResultMap">
+    <resultMap type="Classes" id="ClassResultMap">
     	<id property="id" column="cid"/>
     	<result property="name" column="cname"/>
-    	<association property="teacher" javaType="cn.eden.mybatis.pojo.Teacher">
+    	<association property="teacher" javaType="Teacher">
     		<id property="id" column="tid"/>
     		<result property="name" column="tname"/>
     	</association>
@@ -36,13 +36,13 @@
         select * from classes where cid=#{id}
      </select>
      <!-- 使用resultMap映射实体类和字段之间的一一对应关系 -->
-     <resultMap type="cn.eden.mybatis.pojo.Classes" id="ClassResultMap2">
+     <resultMap type="Classes" id="ClassResultMap2">
         <id property="id" column="cid"/>
         <result property="name" column="cname"/>
         <association property="teacher" column="tid" select="SelectTeacherById"/>
      </resultMap>
      
-     <select id="SelectTeacherById" parameterType="int" resultType="cn.eden.mybatis.pojo.Teacher">
+     <select id="SelectTeacherById" parameterType="int" resultType="Teacher">
         SELECT tid id, tname name FROM teachers WHERE tid=#{id}
      </select>
 </mapper>
